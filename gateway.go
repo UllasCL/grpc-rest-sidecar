@@ -7,6 +7,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 	"net/http"
 )
 
@@ -19,16 +20,27 @@ func run() error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
-	merchantErr := merchantpb.RegisterMerchantExternalServiceHandlerFromEndpoint(ctx, mux, *gRpcServer, opts)
+	gwmux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames:   true,
+				EmitUnpopulated: true,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: true,
+			},
+		}),
+		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
+	)
+	merchantErr := merchantpb.RegisterMerchantExternalServiceHandlerFromEndpoint(ctx, gwmux, *gRpcServer, opts)
 
 	if merchantErr != nil {
 		return merchantErr
 	}
 
-	return http.ListenAndServe(":8080", mux)
+	return http.ListenAndServe(":8080", gwmux)
 }
 func main() {
 	flag.Parse()
@@ -38,3 +50,22 @@ func main() {
 		glog.Fatal(err)
 	}
 }
+
+func customHeaderMatcher(key string) (string, bool) {
+	switch key {
+	case XClientIdHeaderKey:
+		return key, true
+	case XBodySignatureHeaderKey:
+		return key, true
+	case XCallbackUrlHeaderKey:
+		return key, true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
+}
+
+const (
+	XClientIdHeaderKey      = "X-Client-Id"
+	XBodySignatureHeaderKey = "X-Body-Signature"
+	XCallbackUrlHeaderKey   = "X-Callback-Url"
+)

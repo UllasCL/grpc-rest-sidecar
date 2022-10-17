@@ -1,12 +1,3 @@
-FROM alpine:3.13 as deps
-
-RUN apk --no-cache add curl wget unzip ca-certificates git
-
-RUN GRPC_HEALTH_PROBE_VERSION=v0.3.2 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64
-
-RUN chmod +x /bin/grpc_health_probe
-
 #Builder: build executable binary
 ###################################################################################
 FROM golang:1.16-alpine3.13 as builder
@@ -38,37 +29,15 @@ RUN printf "machine github.com\n\
 
 RUN chmod 600 /root/.netrc
 
-WORKDIR /go/src/app
+WORKDIR /app
 
-COPY ./go.mod ./go.sum ./
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
 
-COPY . .
+COPY *.go ./
 
-RUN go clean -cache
-
-#RUN echo "Running tests ... " && \
-#    CGO_ENABLED=0 go test ./...
-
-RUN CGO_ENABLED=0 go build \
-    -installsuffix 'static' \
-    -o /main
-
-
-# Runner: Secod stage build
-#############################################################################
-FROM alpine
-
-ARG BUILD_DATE
-ARG VCS_REF
-
-# Copy binary fom above build
-COPY --from=builder /main /main
-COPY --from=builder /go/src/app/application.yaml /application.yaml
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=deps /bin/grpc_health_probe /bin/grpc_health_probe
-
-# Modify Permission
-RUN chmod +x /main
+RUN go build -o /gateway-sidecar
 
 # Expose port 6565 to the outside world
 EXPOSE 6565
@@ -80,4 +49,4 @@ EXPOSE 8080
 EXPOSE 4000
 
 # Command to run the executable
-ENTRYPOINT ["/main"]
+ENTRYPOINT ["/gateway-sidecar"]
