@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	bffpb "github.com/CDNA-Technologies/proto-gen/go/synapse/bff/v1"
 	merchantpb "github.com/CDNA-Technologies/proto-gen/go/synapse/merchant/v1"
 	"github.com/golang/glog"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -12,7 +13,8 @@ import (
 )
 
 var (
-	gRpcServer = flag.String("echo_endpoint", "127.0.0.1:6565", "endpoint of YourService")
+	merchantgRpcServer = flag.String("merchant_endpoint", "127.0.0.1:6565", "endpoint of merchant Service")
+	bffgRpcServer      = flag.String("bff_endpoint", "127.0.0.1:6565", "endpoint of bff Service")
 )
 
 func run() error {
@@ -34,8 +36,13 @@ func run() error {
 		}),
 		runtime.WithIncomingHeaderMatcher(customHeaderMatcher),
 	)
-	merchantErr := merchantpb.RegisterMerchantExternalServiceHandlerFromEndpoint(ctx, gwmux, *gRpcServer, opts)
 
+	bffErr := bffpb.RegisterBffServiceHandlerFromEndpoint(ctx, gwmux, *bffgRpcServer, opts)
+	if bffErr != nil {
+		return bffErr
+	}
+
+	merchantErr := merchantpb.RegisterMerchantExternalServiceHandlerFromEndpoint(ctx, gwmux, *merchantgRpcServer, opts)
 	if merchantErr != nil {
 		return merchantErr
 	}

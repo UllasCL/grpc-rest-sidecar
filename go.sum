@@ -56,6 +56,10 @@ cloud.google.com/go/storage v1.22.1/go.mod h1:S8N1cAStu7BOeFfE8KAQzmyyLkK8p/vmRq
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/CDNA-Technologies/proto-gen/go/gonuclei/common v1.2.0 h1:tX8W4pxAvA96MJ5IwMsTW24MwRk6foZJMA/kzDQ8m/A=
+github.com/CDNA-Technologies/proto-gen/go/gonuclei/common v1.2.0/go.mod h1:tqscCippqcsOaoedWWBNSB1+F3sD1qdOTsMuHR4+4vw=
+github.com/CDNA-Technologies/proto-gen/go/synapse/bff v1.1.768-draft h1:6UAL8KlhMvfg7aZxVX+DeUiXw1XgS5Ro7r+ZewZSwUE=
+github.com/CDNA-Technologies/proto-gen/go/synapse/bff v1.1.768-draft/go.mod h1:69Rp+Dh4c9Ng7+A0qqDT21b4vNFRQMsxWOuj91z0dnQ=
 github.com/CDNA-Technologies/proto-gen/go/synapse/merchant v1.1.754-draft h1:egVXWYvYL7Tti8GLVpgzqcAaY++Ezq1tdEo/ROR+foc=
 github.com/CDNA-Technologies/proto-gen/go/synapse/merchant v1.1.754-draft/go.mod h1:6fe5cQKFsx6S+IXjqzp7m7M4qVrRDrMgnkT1i9orHaA=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
